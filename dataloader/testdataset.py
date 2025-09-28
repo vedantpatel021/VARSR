@@ -70,6 +70,7 @@ class TestDataset(data.Dataset):
         example["label_B"] = 0
     
         return example
+        fp.close()
 
     def __len__(self):
         return len(self.img_paths)
