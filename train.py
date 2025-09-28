@@ -314,6 +314,25 @@ def main_training():
     args.remain_time, args.finish_time = '-', time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time() - 60))
     print(f'final args:\n\n{str(args)}')
     args.dump_log()
+
+        # --- GUARANTEED FINAL SAVE (always writes a last checkpoint) ---
+    try:
+        if dist.is_local_master():
+            local_out_ckpt = os.path.join(args.local_out_dir_path, 'ar-ckpt-last.pth')
+            local_out_ckpt_best = os.path.join(args.local_out_dir_path, 'ar-ckpt-best.pth')
+            torch.save({
+                'epoch':    (ep+1 if 'ep' in locals() else args.ep),
+                'iter':     (g_it  if 'g_it' in locals() else -1),
+                'trainer':  trainer.state_dict(),
+                'args':     args.state_dict(),
+            }, local_out_ckpt)
+            shutil.copy(local_out_ckpt, local_out_ckpt_best)
+            print(f'[final-save] wrote {local_out_ckpt} (and best)')
+        dist.barrier()
+    except Exception as e:
+        print('[final-save] skipped:', e)
+
+    
     if args.wandb_flag:
         if dist.is_master():
             wandb_run.finish()
