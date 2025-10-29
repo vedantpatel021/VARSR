@@ -225,5 +225,82 @@ def metrics():
 
 if __name__ == "__main__":
     args: arg_util.Args = arg_util.init_dist_and_get_args()
+
+    # === BEGIN: align tester model config to the checkpoint ===
+    import torch
+
+    # Try to read the checkpoint path from args (var_test_path is what this repo uses)
+    ckpt_path = getattr(args, "var_test_path", None)
+    if not ckpt_path:
+        # Fall back to a common default if the flag isn't in your CLI
+        ckpt_path = "checkpoints/VARSR.pth"
+
+    def _safe_set(k, v):
+        """Only set attribute if it exists on args (avoids crashing if Args is slotted)."""
+        if hasattr(args, k) and v is not None:
+            setattr(args, k, v)
+
+    try:
+        ck = torch.load(ckpt_path, map_location="cpu")
+        ck_args = ck.get("args", None)
+
+        # Pull fields if they were saved in the checkpoint
+        def _get(k, default=None):
+            if ck_args is not None and hasattr(ck_args, k):
+                return getattr(ck_args, k)
+            return default
+
+        # Normalize patch_nums (sometimes saved as 'pn' like "4_8")
+        pn = _get("patch_nums", None)
+        if pn is None:
+            pn = _get("pn", None)
+            if isinstance(pn, str):
+                try:
+                    pn = tuple(int(x) for x in pn.split("_"))
+                except Exception:
+                    pn = None
+
+        _safe_set("depth",     _get("depth",     None))
+        # try both names: patch_nums and pn
+        if pn is not None and hasattr(args, "patch_nums"):
+            setattr(args, "patch_nums", pn)
+
+        # These 3 caused your mismatch; set them if present in ckpt args
+        _safe_set("embed_dim", _get("embed_dim", None))
+        _safe_set("num_heads", _get("num_heads", None))
+        _safe_set("mlp_ratio", _get("mlp_ratio", None))
+
+        # If embed_dim wasn't recorded, infer it from a typical weight
+        if (not hasattr(args, "embed_dim")) or getattr(args, "embed_dim", None) in (None, 0):
+            # Try several common state_dict locations used in this repo
+            sd = ck.get("trainer", {}).get("var_wo_ddp", ck.get("state_dict", ck))
+            probe = (sd.get("word_embed.weight")
+                     or sd.get("blocks.0.attn.proj.bias")
+                     or sd.get("blocks.0.attn.q_bias"))
+            if probe is not None:
+                try:
+                    inferred = int(probe.shape[-1])
+                    if hasattr(args, "embed_dim"):
+                        args.embed_dim = inferred
+                except Exception:
+                    pass
+
+        # Backfill heads/mlp if still missing, using a safe rule of thumb
+        if hasattr(args, "num_heads") and (getattr(args, "num_heads", None) in (None, 0)):
+            if hasattr(args, "embed_dim") and getattr(args, "embed_dim", None):
+                args.num_heads = max(1, int(getattr(args, "embed_dim") // 64))
+        if hasattr(args, "mlp_ratio") and (getattr(args, "mlp_ratio", None) in (None, 0)):
+            args.mlp_ratio = 4.0
+
+        print("[test-align] Using model config:",
+              dict(depth=getattr(args, "depth", None),
+                   patch_nums=getattr(args, "patch_nums", None),
+                   embed_dim=getattr(args, "embed_dim", None),
+                   num_heads=getattr(args, "num_heads", None),
+                   mlp_ratio=getattr(args, "mlp_ratio", None)))
+    except Exception as e:
+        print("[test-align] warn: could not align from ckpt:", e)
+    # === END: align tester model config to the checkpoint ===
+    
     main(args)
     results = metrics()
