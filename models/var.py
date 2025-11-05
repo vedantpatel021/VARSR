@@ -290,8 +290,10 @@ class VAR_RoPE(nn.Module):
         sos = torch.cat((sos, cond_BD.unsqueeze(1)), dim=1)
 
         lvl_pos = self.lvl_embed(self.lvl_1L)
-        next_token_map = sos.expand(2 * B, self.first_l, -1) + self.pos_start.expand(2 * B, self.first_l, -1) + lvl_pos[:, :self.first_l]
-        
+        # next_token_map = sos.expand(2 * B, self.first_l, -1) + self.pos_start.expand(2 * B, self.first_l, -1) + lvl_pos[:, :self.first_l]
+        next_token_map = sos[:, :1, :].expand(2 * B, self.first_l, -1) + self.pos_start[:, :self.first_l, :].expand(2 * B, self.first_l, -1) + lvl_pos[:, :self.first_l]
+    
+            
         cur_L = 0
         f_hat = sos.new_zeros(B, self.Cvae, self.patch_nums[-1], self.patch_nums[-1])
         self.freqs_cis = self.freqs_cis.to(dist.get_device())
@@ -785,8 +787,10 @@ class ImgVAR_RoPE(nn.Module):
             if self.label_B_flag:
                 label_B = torch.where(torch.rand(B, device=label_B.device) < self.cond_drop_rate, self.num_classes, label_B)
                 sos = cond_BD = self.class_emb(label_B)
-            sos = sos.unsqueeze(1).expand(B, self.first_l, -1) + self.pos_start.expand(B, self.first_l, -1)
-            
+            # sos = sos.unsqueeze(1).expand(B, self.first_l, -1) + self.pos_start.expand(B, self.first_l, -1)
+            # broadcast from a single step; make pos_start match first_l
+            sos = sos.unsqueeze(1)[:, :1, :].expand(B, self.first_l, -1) + self.pos_start[:, :self.first_l, :].expand(B, self.first_l, -1)
+
             if self.prog_si == 0: x_BLC = sos
             else: x_BLC = torch.cat((sos, self.word_embed(x_BLCv_wo_first_l.float())), dim=1)
             x_BLC += self.lvl_embed(self.lvl_1L[:, :ed].expand(B, -1))# lvl: BLC;  pos: 1LC
