@@ -86,6 +86,18 @@ def main(args: arg_util.Args):
     var_ckpt = args.var_test_path
     #args.depth = 24
 
+    # After parsing args and setting paths, BEFORE build_var(...)
+    if os.path.isfile(args.var_test_path):
+        _ck = torch.load(args.var_test_path, map_location="cpu")
+        if isinstance(_ck, dict) and "args" in _ck:
+            ck_args = _ck["args"]          # dict saved by train.py
+            # only override if present
+            if "depth" in ck_args: 
+                args.depth = ck_args["depth"]
+            if "patch_nums" in ck_args: 
+                args.patch_nums = ck_args["patch_nums"]
+
+
     vae, var = build_var(
         V=4096, Cvae=32, ch=160, share_quant_resi=4, controlnet_depth=args.depth,        # hard-coded VQVAE hyperparameters
         device=dist.get_device(), patch_nums=args.patch_nums, control_patch_nums =args.patch_nums,
