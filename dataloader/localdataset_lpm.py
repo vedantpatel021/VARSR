@@ -56,7 +56,11 @@ class LocalImageDataset_LPM(data.Dataset):
         self.resize_bak = resize_bak
         self.null_text_ratio = null_text_ratio
 
-        self.degradation = RealESRGAN_degradation('/home/quyunpeng/hart/dataloader/params_realesrgan.yml', device='cpu')
+        self.degradation = RealESRGAN_degradation(
+            os.path.join(os.path.dirname(__file__), 'params_realesrgan.yml'),
+            device='cpu'
+        )
+
         self.resize_scale = 1.25
         center_crop = True
 
