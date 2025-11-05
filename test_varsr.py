@@ -121,7 +121,7 @@ def main(args: arg_util.Args):
     folders = os.listdir("testset/")
     val_set = []
     for folder in folders:
-        dataset_val = TestDataset("testset/" + folder, image_size=args.data_load_reso, tokenizer=None, resize_bak=False) # True before
+        dataset_val = TestDataset("testset/" + folder, image_size=args.data_load_reso, tokenizer=None, resize_bak=True)
         ld_val = DataLoader(
             dataset_val, num_workers=0, pin_memory=True,
             batch_size=round(args.batch_size), sampler=EvalDistributedSampler(dataset_val, num_replicas=dist.get_world_size(), rank=dist.get_rank()),
