@@ -145,10 +145,12 @@ def main(args: arg_util.Args):
 
             for idx in range(B):
                 image = recon_B3HW[idx]
-                if True: 
-                    validation_image = Image.open(batch['path'][idx].replace("/HR","/LR")).convert("RGB")
-                    validation_image = validation_image.resize((512, 512))
-                    image = adain_color_fix(image, validation_image)
+
+                # Disable color/style transfer for scientific evaluation
+                # if True: 
+                #     validation_image = Image.open(batch['path'][idx].replace("/HR","/LR")).convert("RGB")
+                #     validation_image = validation_image.resize((512, 512))
+                #     image = adain_color_fix(image, validation_image)
 
                 folder_path, ext_path = os.path.split(batch['path'][idx])
                 output_name = folder_path.replace("/LR", "/VARPrediction/").replace("/HR", "/VARPrediction/")
