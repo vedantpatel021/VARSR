@@ -99,6 +99,8 @@ class VAR_RoPE(nn.Module):
         
         self.patch_nums: Tuple[int] = patch_nums
         self.L = sum(pn ** 2 for pn in self.patch_nums)
+        # keep VAE’s multiscale schedule aligned with VAR’s schedule
+        vae_local.quantize.v_patch_nums = self.patch_nums
         self.first_l = self.patch_nums[-1] ** 2 + 1
         self.begin_ends = []
         context_token = self.first_l
