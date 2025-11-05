@@ -404,8 +404,17 @@ class VAR_RoPE(nn.Module):
                 cond_BD = self.class_emb(label_B)
             sos = torch.cat((sos, cond_BD.unsqueeze(1)), dim=1)
             # sos = sos.expand(B, self.first_l, -1) + self.pos_start.expand(B, self.first_l, -1)
-            # broadcast from a single step; make pos_start match first_l
-            sos = sos.unsqueeze(1)[:, :1, :].expand(B, self.first_l, -1) + self.pos_start[:, :self.first_l, :].expand(B, self.first_l, -1)
+            # Normalize SOS to [B, 1, D], then broadcast to first_l
+            if sos.dim() == 2:         # [B, D]
+                sos = sos.unsqueeze(1)  # -> [B, 1, D]
+            elif sos.dim() == 3:       # [B, Lsos, D]
+                sos = sos[:, :1, :]     # -> [B, 1, D]
+            else:
+                raise RuntimeError(f"Unexpected sos shape: {tuple(sos.shape)}")
+            
+            sos = sos.expand(B, self.first_l, -1) \
+                + self.pos_start[:, :self.first_l, :].expand(B, self.first_l, -1)
+
             
             if self.prog_si == 0: x_BLC = sos
             else:
