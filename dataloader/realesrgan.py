@@ -195,7 +195,7 @@ class RealESRGAN_degradation(object):
         ori_h, ori_w = img_gt.size()[2:4]
 
         #scale_final = random.randint(4, 16)
-        scale_final = 4
+        scale_final = 10
 
         # ----------------------- The first degradation process ----------------------- #
         # blur
