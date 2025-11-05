@@ -84,7 +84,7 @@ logger = get_logger(__name__, log_level="INFO")
 def main(args: arg_util.Args):
     vae_ckpt =  args.vae_model_path
     var_ckpt = args.var_test_path
-    args.depth = 24
+    #args.depth = 24
 
     vae, var = build_var(
         V=4096, Cvae=32, ch=160, share_quant_resi=4, controlnet_depth=args.depth,        # hard-coded VQVAE hyperparameters
