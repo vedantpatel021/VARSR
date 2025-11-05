@@ -152,6 +152,16 @@ def main(args: arg_util.Args):
                 #     validation_image = validation_image.resize((512, 512))
                 #     image = adain_color_fix(image, validation_image)
 
+                # (color/style transfer disabled)
+
+                # strict size check
+                gt_w, gt_h = Image.open(batch['path'][idx]).convert('RGB').size
+                if image.size != (gt_w, gt_h):
+                    raise ValueError(
+                        f"[size-mismatch-before-save] pred {image.size} vs GT {(gt_w, gt_h)} "
+                        f"for {os.path.basename(batch['path'][idx])}"
+                    )
+
                 folder_path, ext_path = os.path.split(batch['path'][idx])
                 output_name = folder_path.replace("/LR", "/VARPrediction/").replace("/HR", "/VARPrediction/")
                 os.makedirs(output_name, exist_ok=True)
