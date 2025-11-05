@@ -252,9 +252,36 @@ def init_dist_and_get_args():
         args.pn = '1_2_3_4_6_9_12_16_20_24_28_32'
     elif args.pn == '1024':
         args.pn = '1_2_3_4_5_7_9_12_16_21_27_36_48_64'
+    # args.patch_nums = tuple(map(int, args.pn.replace('-', '_').split('_')))
+    # args.resos = tuple(pn * args.patch_size for pn in args.patch_nums)
+    # args.data_load_reso = max(args.resos)
+
+    # normalize patch/grid vs requested resolution
     args.patch_nums = tuple(map(int, args.pn.replace('-', '_').split('_')))
+    
+    # If user specified a data_load_reso on the CLI, honor it and adjust patch_nums
+    if args.data_load_reso is not None:
+        end = int(args.data_load_reso) // int(args.patch_size)
+        if end * int(args.patch_size) != int(args.data_load_reso):
+            raise ValueError(
+                f"data_load_reso ({args.data_load_reso}) must be a multiple of patch_size ({args.patch_size})"
+            )
+        # keep existing patch counts <= end; ensure 'end' is the last element
+        trimmed = [p for p in args.patch_nums if p <= end]
+        if len(trimmed) == 0 or trimmed[-1] != end:
+            trimmed.append(end)
+        args.patch_nums = tuple(trimmed)
+    
+    # recompute resos; set/keep data_load_reso
     args.resos = tuple(pn * args.patch_size for pn in args.patch_nums)
-    args.data_load_reso = max(args.resos)
+    if args.data_load_reso is None:
+        args.data_load_reso = int(max(args.resos))
+    else:
+        args.data_load_reso = int(args.data_load_reso)
+    
+    # keep pn string consistent with patch_nums (also used in tb run name)
+    args.pn = "_".join(str(p) for p in args.patch_nums)
+
     
     # update args: bs and lr
     #bs_per_gpu = round(args.bs / args.ac / dist.get_world_size())
