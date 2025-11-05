@@ -291,8 +291,16 @@ class VAR_RoPE(nn.Module):
 
         lvl_pos = self.lvl_embed(self.lvl_1L)
         # next_token_map = sos.expand(2 * B, self.first_l, -1) + self.pos_start.expand(2 * B, self.first_l, -1) + lvl_pos[:, :self.first_l]
-        next_token_map = sos[:, :1, :].expand(2 * B, self.first_l, -1) + self.pos_start[:, :self.first_l, :].expand(2 * B, self.first_l, -1) + lvl_pos[:, :self.first_l]
-    
+        if sos.dim() == 2:
+            sos_b1d = sos.unsqueeze(1)     # [B,1,D]
+        elif sos.dim() == 3:
+            sos_b1d = sos[:, :1, :]        # [B,1,D]
+        else:
+            raise RuntimeError(f"Unexpected sos shape: {tuple(sos.shape)}")
+        
+        next_token_map = sos_b1d.expand(2 * B, self.first_l, -1) \
+            + self.pos_start[:, :self.first_l, :].expand(2 * B, self.first_l, -1) \
+            + lvl_pos[:, :self.first_l]
             
         cur_L = 0
         f_hat = sos.new_zeros(B, self.Cvae, self.patch_nums[-1], self.patch_nums[-1])
