@@ -96,7 +96,8 @@ def main(args: arg_util.Args):
                 args.depth = ck_args["depth"]
             if "patch_nums" in ck_args: 
                 args.patch_nums = ck_args["patch_nums"]
-
+                
+    print(f"[tester] using depth={args.depth}, patch_nums={args.patch_nums} (from ckpt)")
 
     vae, var = build_var(
         V=4096, Cvae=32, ch=160, share_quant_resi=4, controlnet_depth=args.depth,        # hard-coded VQVAE hyperparameters
