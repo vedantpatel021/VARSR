@@ -138,6 +138,7 @@ def main(args: arg_util.Args):
             with torch.inference_mode():
                 with torch.autocast('cuda', enabled=True, dtype=torch.float16, cache_enabled=True):    # using bfloat16 can be faster
                     start_time = time.time()
+                    print("[sanity] lr_inp mean/std:", float(lr_inp.mean()), float(lr_inp.std()))
                     recon_B3HW = var.autoregressive_infer_cfg(B=B, cfg=6.0, top_k=1, top_p=0.75,
                                                         text_hidden=None, lr_inp=lr_inp, negative_text=None, label_B=label_B, lr_inp_scale = None,
                                                         more_smooth=False)
