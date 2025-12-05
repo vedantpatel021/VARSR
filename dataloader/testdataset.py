@@ -56,14 +56,18 @@ class TestDataset(data.Dataset):
         GT_image = Image.open(img_path).convert('RGB')
         scale = 1.0
         resolution = round(512 * scale)
-        GT_image_t = self.img_preproc(GT_image.resize((resolution, resolution)))
+        #ORIGINAL
+        # GT_image_t = self.img_preproc(GT_image.resize((resolution, resolution)))
+        GT_image_t = self.img_preproc(GT_image.resize((resolution, resolution), resample=Image.BICUBIC))
         example["pixel_values"] = GT_image_t.squeeze(0) * 2.0 - 1.0
         example['path'] = img_path
 
         img_path = self.img_paths[index].replace("/HR/", "/LR/")
         LR_image_t = Image.open(img_path).convert('RGB')
         if LR_image_t.size[-1] != resolution:
-            example["conditioning_pixel_values"] = self.img_preproc(LR_image_t.resize((resolution, resolution))).squeeze(0) * 2.0 - 1.0
+            #ORIGINAL
+            # example["conditioning_pixel_values"] = self.img_preproc(LR_image_t.resize((resolution, resolution))).squeeze(0) * 2.0 - 1.0
+            example["conditioning_pixel_values"] = self.img_preproc(LR_image_t.resize((resolution, resolution), resample=Image.BICUBIC)).squeeze(0) * 2.0 - 1.0
         else:
             example["conditioning_pixel_values"] = self.img_preproc(LR_image_t).squeeze(0) * 2.0 - 1.0
 
