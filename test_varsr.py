@@ -141,14 +141,14 @@ def main(args: arg_util.Args):
                     print("[sanity] lr_inp shape/mean/std:",
                           tuple(lr_inp.shape),
                           float(lr_inp.mean()), float(lr_inp.std()))
-                    # recon_B3HW = var.autoregressive_infer_cfg(B=B, cfg=6.0, top_k=1, top_p=0.75,
-                    #                                     text_hidden=None, lr_inp=lr_inp, negative_text=None, label_B=label_B, lr_inp_scale = None,
-                    #                                     more_smooth=False)
-                    recon_B3HW = var.autoregressive_infer_cfg(
-                        B=B, cfg=1.8, top_k=64, top_p=0.95, more_smooth=True,
-                        text_hidden=None, lr_inp=lr_inp, negative_text=None,
-                        label_B=label_B, lr_inp_scale=None
-                    )
+                    recon_B3HW = var.autoregressive_infer_cfg(B=B, cfg=6.0, top_k=1, top_p=0.75,
+                                                        text_hidden=None, lr_inp=lr_inp, negative_text=None, label_B=label_B, lr_inp_scale = None,
+                                                        more_smooth=False)
+                    # recon_B3HW = var.autoregressive_infer_cfg(
+                    #     B=B, cfg=1.8, top_k=64, top_p=0.95, more_smooth=True,
+                    #     text_hidden=None, lr_inp=lr_inp, negative_text=None,
+                    #     label_B=label_B, lr_inp_scale=None
+                    # )
                     recon_B3HW = numpy_to_pil(pt_to_numpy(recon_B3HW))
 
             for idx in range(B):
