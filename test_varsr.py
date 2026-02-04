@@ -145,19 +145,24 @@ def main(args: arg_util.Args):
                     #                                     text_hidden=None, lr_inp=lr_inp, negative_text=None, label_B=label_B, lr_inp_scale = None,
                     #                                     more_smooth=False)
                     recon_B3HW = var.autoregressive_infer_cfg(
-                        B=B, cfg=1.0, top_k=1, top_p=0.0, more_smooth=False,
+                        B=B, cfg=6.0, top_k=1, top_p=0.75, more_smooth=False,
                         text_hidden=None, lr_inp=lr_inp, negative_text=None,
                         label_B=label_B, lr_inp_scale=None
                     )
-                    # recon_B3HW = numpy_to_pil(pt_to_numpy(recon_B3HW))
-                    print("[sanity] recon min/max:", 
-                          float(recon_B3HW.min()), float(recon_B3HW.max()))
                     
-                    # If output is in [-1,1], map to [0,1] before saving
-                    if recon_B3HW.min() < 0.0:
+                    mn = float(recon_B3HW.min())
+                    mx = float(recon_B3HW.max())
+                    print("[sanity] recon min/max:", mn, mx)
+                    
+                    if mn < 0.0 or mx > 1.0:
                         recon_B3HW = recon_B3HW.clamp(-1, 1).mul(0.5).add(0.5)
                     
                     recon_B3HW = recon_B3HW.clamp(0, 1)
+                    
+                    mn2 = float(recon_B3HW.min())
+                    mx2 = float(recon_B3HW.max())
+                    print("[sanity] recon AFTER clamp min/max:", mn2, mx2)
+                    
                     recon_B3HW = numpy_to_pil(pt_to_numpy(recon_B3HW))
 
 
