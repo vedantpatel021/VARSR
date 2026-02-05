@@ -150,18 +150,18 @@ def main(args: arg_util.Args):
                         label_B=label_B, lr_inp_scale=None
                     )
                     
-                    mn = float(recon_B3HW.min())
-                    mx = float(recon_B3HW.max())
-                    print("[sanity] recon min/max:", mn, mx)
+                    # mn = float(recon_B3HW.min())
+                    # mx = float(recon_B3HW.max())
+                    # print("[sanity] recon min/max:", mn, mx)
                     
-                    if mn < 0.0 or mx > 1.0:
-                        recon_B3HW = recon_B3HW.clamp(-1, 1).mul(0.5).add(0.5)
+                    # if mn < 0.0 or mx > 1.0:
+                    #     recon_B3HW = recon_B3HW.clamp(-1, 1).mul(0.5).add(0.5)
                     
-                    recon_B3HW = recon_B3HW.clamp(0, 1)
+                    # recon_B3HW = recon_B3HW.clamp(0, 1)
                     
-                    mn2 = float(recon_B3HW.min())
-                    mx2 = float(recon_B3HW.max())
-                    print("[sanity] recon AFTER clamp min/max:", mn2, mx2)
+                    # mn2 = float(recon_B3HW.min())
+                    # mx2 = float(recon_B3HW.max())
+                    # print("[sanity] recon AFTER clamp min/max:", mn2, mx2)
                     
                     recon_B3HW = numpy_to_pil(pt_to_numpy(recon_B3HW))
 
