@@ -145,7 +145,7 @@ def main(args: arg_util.Args):
                     #                                     text_hidden=None, lr_inp=lr_inp, negative_text=None, label_B=label_B, lr_inp_scale = None,
                     #                                     more_smooth=False)
                     recon_B3HW = var.autoregressive_infer_cfg(
-                        B=B, cfg=0, top_k=1, top_p=0.75, more_smooth=False,
+                        B=B, cfg=0.0, top_k=64, top_p=0.95, more_smooth=False,
                         text_hidden=None, lr_inp=lr_inp, negative_text=None,
                         label_B=label_B, lr_inp_scale=None
                     )
