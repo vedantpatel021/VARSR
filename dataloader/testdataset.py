@@ -66,8 +66,8 @@ class TestDataset(data.Dataset):
         LR_image_t = Image.open(img_path).convert('RGB')
         if LR_image_t.size[-1] != resolution:
             #ORIGINAL
-            # example["conditioning_pixel_values"] = self.img_preproc(LR_image_t.resize((resolution, resolution))).squeeze(0) * 2.0 - 1.0
-            example["conditioning_pixel_values"] = self.img_preproc(LR_image_t.resize((resolution, resolution), resample=Image.BICUBIC)).squeeze(0) * 2.0 - 1.0
+            example["conditioning_pixel_values"] = self.img_preproc(LR_image_t.resize((resolution, resolution))).squeeze(0) * 2.0 - 1.0
+            # example["conditioning_pixel_values"] = self.img_preproc(LR_image_t.resize((resolution, resolution), resample=Image.BICUBIC)).squeeze(0) * 2.0 - 1.0
         else:
             example["conditioning_pixel_values"] = self.img_preproc(LR_image_t).squeeze(0) * 2.0 - 1.0
 
