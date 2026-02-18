@@ -57,8 +57,8 @@ class TestDataset(data.Dataset):
         scale = 1.0
         resolution = round(512 * scale)
         #ORIGINAL
-        # GT_image_t = self.img_preproc(GT_image.resize((resolution, resolution)))
-        GT_image_t = self.img_preproc(GT_image.resize((resolution, resolution), resample=Image.BICUBIC))
+        GT_image_t = self.img_preproc(GT_image.resize((resolution, resolution)))
+        # GT_image_t = self.img_preproc(GT_image.resize((resolution, resolution), resample=Image.BICUBIC))
         example["pixel_values"] = GT_image_t.squeeze(0) * 2.0 - 1.0
         example['path'] = img_path
 
