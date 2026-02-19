@@ -102,7 +102,15 @@ def main(args: arg_util.Args):
     device = args.device
     vae_ckpt =  args.vae_model_path
     var_ckpt = args.var_test_path
-    args.depth = 24
+    # args.depth = 24
+    ck_depth = ck_args.get("depth", None)
+    if ck_depth is not None:
+        if hasattr(args, "depth") and args.depth != ck_depth:
+            print(f"[warn] overriding --depth {args.depth} -> {ck_depth} from checkpoint")
+        args.depth = ck_depth
+    else:
+        # fallback (match pretrained var_d16)
+        args.depth = getattr(args, "depth", 16)
 
     vae, var = build_var(
         V=4096, Cvae=32, ch=160, share_quant_resi=4, controlnet_depth=args.depth,        # hard-coded VQVAE hyperparameters
