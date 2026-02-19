@@ -92,8 +92,14 @@ def main(args: arg_util.Args):
         if isinstance(_ck, dict) and "args" in _ck:
             ck_args = _ck["args"]          # dict saved by train.py
             # only override if present
-            if "depth" in ck_args: 
-                args.depth = ck_args["depth"]
+            ck_depth = ck_args.get("depth", None)
+            if ck_depth is not None:
+                if hasattr(args, "depth") and args.depth != ck_depth:
+                    print(f"[warn] overriding --depth {args.depth} -> {ck_depth} from checkpoint")
+                args.depth = ck_depth
+            else:
+                # fallback (match pretrained var_d16)
+                args.depth = getattr(args, "depth", 16)
             if "patch_nums" in ck_args: 
                 args.patch_nums = ck_args["patch_nums"]
                 
