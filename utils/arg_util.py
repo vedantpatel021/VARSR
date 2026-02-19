@@ -34,7 +34,7 @@ class Args(Tap):
     vfast: int = 0      # torch.compile VAE; =0: not compile; 1: compile with 'reduce-overhead'; 2: compile with 'max-autotune'
     # VAR
     tfast: int = 0      # torch.compile VAR; =0: not compile; 1: compile with 'reduce-overhead'; 2: compile with 'max-autotune'
-    depth: int = 24     # VAR depth
+    depth: int = 16     # VAR depth
     # VAR initialization
     ini: float = -1     # -1: automated model parameter initialization
     hd: float = 0.02    # head.w *= hd
